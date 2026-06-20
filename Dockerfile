@@ -1,34 +1,18 @@
-# 1. Start from your local Ubuntu base image
-FROM ubuntu:latest
+# 1. Use the official pre-built Playwright image from Microsoft
+# This already contains Ubuntu, Node.js, npm, sudo, and ALL browsers/fonts pre-installed!
+FROM ://microsoft.com
 
-# 2. Prevent interactive package installation halts
-ENV DEBIAN_FRONTEND=noninteractive
-
-# 3. Cleanly install Node.js, npm, AND the missing 'sudo' system utility
-RUN apt-get update && apt-get install -y \
-    curl \
-    gnupg \
-    ca-certificates \
-    nodejs \
-    npm \
-    sudo \
-    && rm -rf /var/lib/apt/lists/*
-
-# 4. Jump straight into the workspace application directory
+# 2. Set the application directory inside the container
 WORKDIR /app
 
-# 5. Copy package management configurations to preserve layers
+# 3. Copy your project configuration rules
 COPY package*.json ./
 
-# 6. Install your JavaScript project dependencies
+# 4. Install your project dependencies using your proxy-friendly installer
 RUN npm i
 
-# 7. 🌟 FIX: Inject the patient environment variable and run the install cleanly
-ENV PLAYWRIGHT_DOWNLOAD_CONNECTION_TIMEOUT=600000
-RUN npx playwright install --with-deps
-
-# 8. Copy the rest of your testing codebase
+# 5. Copy the rest of your local testing files (like tests/ and playwright.config.ts)
 COPY . .
 
-# 9. Default container bootup runtime test runner execution line
+# 6. Default execution trigger to run your tests in headless mode
 CMD ["npx", "playwright", "test"]
