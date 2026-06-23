@@ -1,9 +1,15 @@
 pipeline {
-    agent {
-        label 'docker-agent1'
-    }
+    agent { 
+        label 'docker-agent1' 
+        }
 
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Test') {
             agent {
                 docker {
@@ -15,6 +21,12 @@ pipeline {
                 sh 'npm ci'
                 sh 'npx playwright test'
             }
+        }
+    }
+
+    post {
+        always {
+            archiveArtifacts artifacts: 'playwright-report/**, test-results/**', allowEmptyArchive: true
         }
     }
 }
